@@ -413,10 +413,14 @@ class MtcnnDetector(object):
         output = self.RNet.predict(input_buf)
 
         # filter the total_boxes with threshold
+        #print(self.threshold)
         passed = np.where(output[1][:, 1] > self.threshold[1])
+        #print(passed)
         total_boxes = total_boxes[passed]
+        #print(total_boxes)
 
         if total_boxes.size == 0:
+            print('ttb None')
             return None
 
         total_boxes[:, 4] = output[1][passed, 1].reshape((-1,))
@@ -451,6 +455,7 @@ class MtcnnDetector(object):
         total_boxes = total_boxes[passed]
 
         if total_boxes.size == 0:
+            print('total boxes 0')
             return None
 
         total_boxes[:, 4] = output[2][passed, 1].reshape((-1,))
