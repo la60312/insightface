@@ -100,7 +100,7 @@ def calculate_roc(thresholds, embeddings1, embeddings2, actual_issame, nrof_fold
         for threshold_idx, threshold in enumerate(thresholds):
             _, _, acc_train[threshold_idx] = calculate_accuracy(threshold, dist[train_set], actual_issame[train_set])
         best_threshold_index = np.argmax(acc_train)
-        print('threshold', thresholds[best_threshold_index])
+        #print('threshold', thresholds[best_threshold_index])
         for threshold_idx, threshold in enumerate(thresholds):
             tprs[fold_idx,threshold_idx], fprs[fold_idx,threshold_idx], _ = calculate_accuracy(threshold, dist[test_set], actual_issame[test_set])
         _, _, accuracy[fold_idx] = calculate_accuracy(thresholds[best_threshold_index], dist[test_set], actual_issame[test_set])
@@ -520,7 +520,10 @@ if __name__ == '__main__':
   prop = face_image.load_property(args.data_dir)
   image_size = prop.image_size
   print('image_size', image_size)
-  ctx = -1 #mx.gpu(args.gpu)
+  if args.gpu>=0:
+      ctx = mx.gpu(args.gpu)
+  elif args.gpu==-1:
+      ctx = mx.cpu()
   nets = []
   vec = args.model.split(',')
   prefix = args.model.split(',')[0]
@@ -551,7 +554,7 @@ if __name__ == '__main__':
     #arg_params, aux_params = ch_dev(arg_params, aux_params, ctx)
     all_layers = sym.get_internals()
     sym = all_layers['fc1_output']
-    model = mx.mod.Module(symbol=sym, label_names = None)
+    model = mx.mod.Module(symbol=sym, context=ctx, label_names = None)
     #model.bind(data_shapes=[('data', (args.batch_size, 3, image_size[0], image_size[1]))], label_shapes=[('softmax_label', (args.batch_size,))])
     model.bind(data_shapes=[('data', (args.batch_size, 3, image_size[0], image_size[1]))])
     model.set_params(arg_params, aux_params)
